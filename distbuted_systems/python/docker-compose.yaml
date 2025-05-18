@@ -1,0 +1,53 @@
+services:
+  server:
+    build:
+      context: ..
+      dockerfile: Dockerfile.server
+    ports:
+      - "8765:8765"
+    container_name: websocket_server
+    restart: always
+    networks:
+      - distributed_net
+
+  client1:
+    build:
+      context: ..
+      dockerfile: Dockerfile.client
+    depends_on:
+      - server
+    restart: on-failure
+    container_name: websocket_client_1
+    environment:
+      CLIENT_NAME: "ClientAlpha"
+    networks:
+      - distributed_net
+
+  client2:
+    build:
+      context: ..
+      dockerfile: Dockerfile.client
+    depends_on:
+      - server
+    restart: on-failure
+    container_name: websocket_client_2
+    environment:
+      CLIENT_NAME: "ClientBeta"
+    networks:
+      - distributed_net
+
+  client3:
+    build:
+      context: ..
+      dockerfile: Dockerfile.client
+    depends_on:
+      - server
+    restart: on-failure
+    container_name: websocket_client_3
+    environment:
+      CLIENT_NAME: "ClientGamma"
+    networks:
+      - distributed_net
+
+networks:
+  distributed_net:
