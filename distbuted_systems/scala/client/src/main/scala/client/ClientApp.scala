@@ -3,7 +3,7 @@ package client
 import shared.{MasterRemote, WordCountResult, WordCountTask}
 
 import java.rmi.registry.LocateRegistry
-import java.rmi.{ConnectException, RemoteException}
+import java.rmi.{ConnectException, NotBoundException, RemoteException}
 
 object ClientApp {
     def main(args: Array[String]): Unit = {
@@ -37,6 +37,18 @@ object ClientApp {
                     } catch {
                         case e: RemoteException =>
                             println(s"RemoteException for task ${index + 1}: ${e.getMessage}")
+                        case e: NotBoundException =>
+                            attempts += 1
+                            if (attempts < maxAttempts) {
+                                println(s"NotBoundException: ${e.getMessage}. Retrying ($attempts/$maxAttempts)...")
+                                Thread.sleep(2000)
+                            } else {
+                                println(s"Failed to find master after $maxAttempts attempts")
+                                System.exit(1)
+                            }
+                        case e: Exception =>
+                            println(s"Error connecting to registry: ${e.getMessage}")
+                            System.exit(1)
                     }
                 }
             } catch {
